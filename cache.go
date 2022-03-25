@@ -109,6 +109,7 @@ func (cache *Cache) updateLoop() {
 					break
 				}
 				retry++
+				continue
 			}
 
 			// Get the response data
@@ -122,6 +123,7 @@ func (cache *Cache) updateLoop() {
 					break
 				}
 				retry++
+				continue
 			}
 
 			// Update the data, and when we last updated it
