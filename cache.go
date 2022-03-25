@@ -61,7 +61,7 @@ func (cache *Cache) GetWithTimeout(timeout time.Duration) ([]byte, error) {
 	timeoutTime := time.Now().Add(timeout)
 
 	// Wait for rolling cache result to exist
-	for time.Now().After(timeoutTime) {
+	for time.Now().Before(timeoutTime) {
 		//TODO: We can probably do this a bit safer with channels
 
 		// If it exists, return the data
