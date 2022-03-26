@@ -130,6 +130,10 @@ func (cache *Cache) updateLoop() {
 			cache.Data = data
 			cache.LastUpdate = time.Now()
 
+			if cache.Options.Debug {
+				fmt.Printf("Rolling cache data updated: %d bytes, status code %d", len(data), resp.StatusCode)
+			}
+
 			// Break out of the retry loop since we're done
 			break
 		}
