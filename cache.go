@@ -101,6 +101,17 @@ func (cache *Cache) updateLoop() {
 			}
 			resp, err := HttpClient.Do(req)
 
+			// We are expecting 2xx status codes, otherwise we consider it a fail
+			if resp.StatusCode < 200 || resp.StatusCode > 299 {
+				if cache.Options.MaxRetries != -1 && retry >= cache.Options.MaxRetries {
+					// We couldn't recover by retrying, so we stop here
+					fmt.Printf("Too many server errors when requesting rolling cache: %s\n", resp.Status)
+					break
+				}
+				retry++
+				continue
+			}
+
 			// If there was an error, see if we can recover by retrying
 			if err != nil {
 				if cache.Options.MaxRetries != -1 && retry >= cache.Options.MaxRetries {
