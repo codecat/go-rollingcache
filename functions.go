@@ -57,6 +57,11 @@ func Start(url string, options Options) *Cache {
 		panic("A rolling cache interval must be set!")
 	}
 
+	// Set a default fail interval
+	if options.FailInterval == 0 {
+		options.FailInterval = 10 * time.Second
+	}
+
 	// Create the new cache
 	ret := &Cache{
 		URL:         url,

@@ -18,6 +18,8 @@ type Cache struct {
 
 	// Latest fetched data, or nil when it hasn't fetched the first result yet
 	Data []byte
+	// Whether the data has been successfully fetched the last time it was requested
+	Success bool
 
 	// Time the cache was last requested
 	LastRequest time.Time
@@ -106,6 +108,7 @@ func (cache *Cache) updateLoop() {
 				if cache.Options.MaxRetries != -1 && retry >= cache.Options.MaxRetries {
 					// We couldn't recover by retrying, so we stop here
 					fmt.Printf("Too many server errors when requesting rolling cache: %s\n", resp.Status)
+					cache.Success = false
 					break
 				}
 				retry++
@@ -117,6 +120,7 @@ func (cache *Cache) updateLoop() {
 				if cache.Options.MaxRetries != -1 && retry >= cache.Options.MaxRetries {
 					// We couldn't recover by retrying, so we stop here
 					fmt.Printf("Too many errors when requesting rolling cache: %s\n", err.Error())
+					cache.Success = false
 					break
 				}
 				retry++
@@ -131,6 +135,7 @@ func (cache *Cache) updateLoop() {
 				if cache.Options.MaxRetries != -1 && retry >= cache.Options.MaxRetries {
 					// We couldn't recover by retrying, so we stop here
 					fmt.Printf("Too many errors when reading rolling cache response body: %s\n", err.Error())
+					cache.Success = false
 					break
 				}
 				retry++
@@ -139,10 +144,11 @@ func (cache *Cache) updateLoop() {
 
 			// Update the data, and when we last updated it
 			cache.Data = data
+			cache.Success = true
 			cache.LastUpdate = time.Now()
 
 			if cache.Options.Debug {
-				fmt.Printf("Rolling cache data updated: %d bytes, status code %d\n", len(data), resp.StatusCode)
+				fmt.Printf("Rolling cache data updated with %d bytes\n", len(data))
 			}
 
 			// Break out of the retry loop since we're done
@@ -150,7 +156,11 @@ func (cache *Cache) updateLoop() {
 		}
 
 		// Wait the specified amount of time until the next request
-		time.Sleep(cache.Options.Interval)
+		if cache.Success {
+			time.Sleep(cache.Options.Interval)
+		} else {
+			time.Sleep(cache.Options.FailInterval)
+		}
 	}
 
 	// Remove ourselves from the cache

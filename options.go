@@ -5,6 +5,8 @@ import "time"
 type Options struct {
 	// Interval between rolling requests, will panic if not set
 	Interval time.Duration
+	// Interval between failed rolling requests, defaults to 10 seconds when not set
+	FailInterval time.Duration
 	// The maximum time this rolling cache can live for without being requested, or 0 for an unlimited time
 	Lifetime time.Duration
 
