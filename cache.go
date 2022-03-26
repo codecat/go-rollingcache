@@ -131,7 +131,7 @@ func (cache *Cache) updateLoop() {
 			cache.LastUpdate = time.Now()
 
 			if cache.Options.Debug {
-				fmt.Printf("Rolling cache data updated: %d bytes, status code %d", len(data), resp.StatusCode)
+				fmt.Printf("Rolling cache data updated: %d bytes, status code %d\n", len(data), resp.StatusCode)
 			}
 
 			// Break out of the retry loop since we're done
