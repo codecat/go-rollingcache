@@ -109,7 +109,9 @@ func (cache *Cache) updateLoop() {
 
 				if cache.Options.MaxRetries != -1 && retry >= cache.Options.MaxRetries {
 					// We couldn't recover by retrying, so we stop here
-					fmt.Printf("Too many server errors when requesting rolling cache: %s\n", resp.Status)
+					if resp != nil {
+						fmt.Printf("Too many server errors when requesting rolling cache: %s\n", resp.Status)
+					}
 					cache.Success = false
 					break
 				}
@@ -122,18 +124,6 @@ func (cache *Cache) updateLoop() {
 				if cache.Options.MaxRetries != -1 && retry >= cache.Options.MaxRetries {
 					// We couldn't recover by retrying, so we stop here
 					fmt.Printf("Too many server errors when requesting rolling cache: %s\n", resp.Status)
-					cache.Success = false
-					break
-				}
-				retry++
-				continue
-			}
-
-			// If there was an error, see if we can recover by retrying
-			if err != nil {
-				if cache.Options.MaxRetries != -1 && retry >= cache.Options.MaxRetries {
-					// We couldn't recover by retrying, so we stop here
-					fmt.Printf("Too many errors when requesting rolling cache: %s\n", err.Error())
 					cache.Success = false
 					break
 				}
